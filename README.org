@@ -1,0 +1,41 @@
+#+title: BambooHR (BHR)
+
+A simple package to improve the use of Bamboo HR, since it lacks the ability to
+cleanly submit multiple entries.
+
+* Setup
+To greatly simplify, the authentication for the package is handled via authinfo.
+To add a new set of credentials, create/modify your desired autoinfo file
+(=$HOME/.authinfo= or ideally =$HOME/.authinfo.gpg=) to include an entry similar to
+below:
+
+#+begin_src authinfo
+machine mysite.bamboohr.com login my@email.address password supersecretpass123
+#+end_src
+
+And ensure that =bhr-org-name= matches the machine name (in the above example; set the variable to =mysite=).
+
+* Usage
+** =bhr-view-timesheet=
+Prompt for a date and display the relevant timesheet for that date.
+
+[[file:.github/assets/view-timesheet.png]]
+
+[[file:.github/assets/timesheet-entry.png]]
+
+The total amount of hours tracked for each day is displayed next to it, with the
+value of =bhr-default-hours= being used as the maximal amount.
+
+When in the timesheet view, you can delete entries by selecting the one(s) you
+wish to delete with =d= and executing the list of actions with =x=. After
+confirming, the entries will be removed from both the list view /and Bamboo
+itself/ (this is obviously a destructive action).
+
+Edit support is Coming Soon ™️.
+
+** =bhr-submit-multiple=
+Prompt for a task, a date range, the hours and an optional note and produce the
+relevant entries on Bamboo.
+
+The date range inputs also accept any org shorthand, for example =+2d= for 2 days
+from _today_ and =++2d= for 2 days _from the start date_.

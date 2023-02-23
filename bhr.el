@@ -157,7 +157,7 @@ This includes things like strings and {} pairs."
                                    (project . ((id . ,(alist-get 'id project))
                                                (name . ,(alist-get 'name project))))))))))
 
-(cl-defun bhr--request (endpoint &optional callback &key verb data headers noninteractive json noauth sync)
+(cl-defun bhr--request (endpoint &key verb data headers noninteractive json noauth sync callback)
   "Helper function to wrap around querying an ENDPOINT.
 Specify an optional callback to run with the buffer as the result of the
 operation.
@@ -187,7 +187,7 @@ SYNC has the request run synchronously"
          (url-request-data data))
     (if sync
         (with-current-buffer (url-retrieve-synchronously endpoint)
-          (funcall callback url-http-response-status))
+          (funcall (or callback #'identity) url-http-response-status))
       (url-retrieve
        endpoint
        (or callback #'identity)))))
@@ -222,6 +222,7 @@ information from the home page."
         ;; Attempt to log in
         (bhr--request
          (bhr--url "login.php")
+         :callback
          (lambda (_)
            (setq bhr--csrf-token (bhr--find-sexp "CSRF_TOKEN = \""))
 
@@ -252,6 +253,7 @@ Required for any function that requests data."
        (bhr-login) ;; This is needed until my patch is merged
        (bhr--request
         (bhr--url "auth/check_session?isOnboarding=false")
+        :callback
         (lambda (status)
           (if (= 401 status)
               (bhr-login)
@@ -281,7 +283,6 @@ Required for any function that requests data."
   (bhr-ensure-session
    (bhr--request
     (bhr--url "timesheet/hour/entries")
-    #'identity
     :verb "DELETE"
     :data (json-encode `(:entries ,entries))
     :json t
@@ -357,7 +358,6 @@ Required for any function that requests data."
   "Submit a list of plist ENTRIES to Bamboo. "
   (bhr--request
    (bhr--url "timesheet/hour/entries")
-   #'identity
    :verb "POST"
    :data (json-encode `(:hours ,entries))
    :json t))

@@ -233,6 +233,7 @@ information from the home page."
            ;; Scrape info from the home page
            (bhr--request
             (bhr--url "home")
+            :callback
             (lambda (_)
               (setq bhr--session-user (bhr--find-json "SESSION_USER=")
                     bhr--time-tracking (bhr--find-json "window.time_tracking = ")))
